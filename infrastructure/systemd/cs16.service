@@ -1,0 +1,45 @@
+[Unit]
+Description=Counter-Strike 1.6 Server (Vieira-STRIKE)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=cs16
+Group=cs16
+WorkingDirectory=/home/cs16/cs16-platform/game-server/hlds
+
+# Variáveis de ambiente — definir em /etc/cs16/env (fora do Git)
+EnvironmentFile=-/etc/cs16/env
+
+ExecStart=/home/cs16/cs16-platform/game-server/hlds/hlds_run \
+    -game cstrike \
+    -port 27015 \
+    -maxplayers 20 \
+    +map de_dust2 \
+    +servercfgfile server.cfg \
+    -noipx \
+    -nojoy \
+    -nomaster
+
+ExecStop=/bin/kill -SIGTERM $MAINPID
+
+Restart=on-failure
+RestartSec=10
+StartLimitIntervalSec=120
+StartLimitBurst=5
+
+# Limites de recursos
+LimitNOFILE=4096
+LimitNPROC=512
+
+# Segurança — nunca rodar como root
+NoNewPrivileges=true
+PrivateTmp=true
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=cs16
+
+[Install]
+WantedBy=multi-user.target

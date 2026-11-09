@@ -1,0 +1,60 @@
+{
+  "version": "1.0.0",
+  "server": "Vieira-STRIKE",
+  "updated_at": "2026-11-09T20:00:00Z",
+  "assets": [
+    {
+      "sku": "skin_ak47_vulcan",
+      "display_name": "AK-47 Vulcan",
+      "item_type": "weapon_skin",
+      "version": "1.0.0",
+      "author": "Comunidade CS 1.6",
+      "origin": "CS16Forge / Custom Asset",
+      "license": "CC-BY-NC 4.0",
+      "files": [
+        {
+          "path": "models/v_ak47_vulcan.mdl",
+          "size_bytes": 1048576,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "models/p_ak47_vulcan.mdl",
+          "size_bytes": 524288,
+          "sha256": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
+        }
+      ]
+    },
+    {
+      "sku": "skin_m4a1_hyperbeast",
+      "display_name": "M4A1 Hyper Beast",
+      "item_type": "weapon_skin",
+      "version": "1.0.0",
+      "author": "Comunidade CS 1.6",
+      "origin": "CS16Forge / Custom Asset",
+      "license": "CC-BY-NC 4.0",
+      "files": [
+        {
+          "path": "models/v_m4a1_hyperbeast.mdl",
+          "size_bytes": 1048576,
+          "sha256": "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a"
+        }
+      ]
+    },
+    {
+      "sku": "model_player_arctic_elite",
+      "display_name": "Arctic Avengers Elite",
+      "item_type": "player_model",
+      "version": "1.0.0",
+      "author": "Vieira-STRIKE Team",
+      "origin": "Original CS 1.6 Custom Retexture",
+      "license": "Custom Server Only",
+      "files": [
+        {
+          "path": "models/player/arctic_elite/arctic_elite.mdl",
+          "size_bytes": 1572864,
+          "sha256": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d"
+        }
+      ]
+    }
+  ]
+}

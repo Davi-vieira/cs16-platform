@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vieira-STRIKE — Portal & Loja Oficial</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-container">
+      <a href="#" class="logo" onclick="App.showTab('home'); return false;">
+        <span>Vieira-STRIKE</span>
+        <span class="logo-badge">CS 1.6</span>
+      </a>
+
+      <nav>
+        <a class="nav-link active" data-tab="home">Início</a>
+        <a class="nav-link" data-tab="shop">Loja & Skins</a>
+        <a class="nav-link" data-tab="profile">Meu Perfil</a>
+        <a class="nav-link" data-tab="wallet">Carteira & PIX</a>
+        <a class="nav-link admin-only" data-tab="admin" style="display: none;">Painel Admin</a>
+      </nav>
+
+      <div class="auth-box">
+        <div id="auth-guest">
+          <button class="btn btn-secondary btn-sm" onclick="App.openModal('modal-login')">Entrar</button>
+        </div>
+        <div id="auth-user" style="display: none; align-items: center; gap: 0.75rem;">
+          <div style="text-align: right; font-size: 0.8rem;">
+            <div id="nav-user-name" style="font-weight: 700; color: var(--text-main);">Jogador</div>
+            <div id="nav-user-rank" class="badge badge-rank" style="font-size: 0.65rem; padding: 0.1rem 0.4rem;">Iniciante</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="App.logout()">Sair</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main>
+
+    <!-- Tab 1: Home -->
+    <section id="tab-home" class="tab-pane active">
+      <div class="hero">
+        <h1>Servidor Vieira-STRIKE</h1>
+        <p>Servidor competitivo clássico de Counter-Strike 1.6 com sistema de progressão por XP, patentes exclusivas e mercado de skins customizadas.</p>
+        <div class="server-connect-bar">
+          <span>connect seu-ip-ou-dominio:27015</span>
+          <button class="btn btn-primary btn-sm" onclick="navigator.clipboard.writeText('connect seu-ip-ou-dominio:27015'); App.toast('Comando copiado!', 'success')">
+            Copiar IP
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-3">
+        <div class="card">
+          <h3 class="card-title">🎖️ Níveis & Patentes</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">
+            Ganhe XP a cada rodada, plant ou desarme de bomba e vitória de equipe. Suba de Iniciante até a cobiçada patente Elite!
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">🔫 Loja & Skins Reais</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">
+            Adquira skins exclusivas de armas e modelos de jogador diretamente no jogo com o comando <code>/loja</code>.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">⚡ FastDL Integrado</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">
+            Download de mapas e modelos com velocidade máxima via Nginx HTTP dedicado. Chega de esperar downloads lentos no jogo.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 2: Profile & Linking -->
+    <section id="tab-profile" class="tab-pane">
+      <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+          <h2 class="card-title">Perfil do Jogador</h2>
+          <span id="prof-status" class="badge badge-visitor">CARREGANDO</span>
+        </div>
+
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+          <div>
+            <span style="color: var(--text-muted); font-size: 0.8rem;">Nome</span>
+            <h3 id="prof-name" style="font-size: 1.3rem;">-</h3>
+          </div>
+          <div>
+            <span style="color: var(--text-muted); font-size: 0.8rem;">Patente Atual</span>
+            <h3 id="prof-rank" style="font-size: 1.3rem; color: var(--accent);">-</h3>
+          </div>
+          <div>
+            <span style="color: var(--text-muted); font-size: 0.8rem;">Nível / XP Total</span>
+            <h3 style="font-size: 1.3rem;"><span id="prof-level">-</span> (<span id="prof-xp">-</span> XP)</h3>
+          </div>
+          <div>
+            <span style="color: var(--text-muted); font-size: 0.8rem;">Saldo em Carteira</span>
+            <h3 id="prof-balance" style="font-size: 1.3rem; color: var(--accent-green);">-</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vinculação com o Jogo -->
+      <div class="card">
+        <h3 class="card-title">🔗 Vincular Conta ao CS 1.6</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0.5rem 0 1rem;">
+          Se você jogou no servidor como visitante, gere um código temporário de 8 dígitos abaixo e digite <code>/vincular CODIGO</code> no chat do CS 1.6 para unificar seu inventário e saldo.
+        </p>
+
+        <button class="btn btn-primary" onclick="App.generateLinkCode()">
+          Gerar Código de Vinculação
+        </button>
+
+        <div id="link-code-area" class="link-code-display" style="display: none;">
+          <span style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Seu código de uso único (expira em 15 min):</span>
+          <div id="link-code-val" class="link-code-number">--------</div>
+          <p style="font-size: 0.9rem; color: var(--text-muted);">
+            No chat do servidor Vieira-STRIKE, digite: <code>/vincular <span id="link-code-helper"></span></code>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: Shop -->
+    <section id="tab-shop" class="tab-pane">
+      <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h2>Catálogo de Itens</h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Skins de armas e modelos de personagens disponíveis no Vieira-STRIKE.</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="App.loadCatalog()">Atualizar</button>
+      </div>
+
+      <div id="shop-items-grid" class="grid">
+        <!-- Renderizado dinamicamente via app.js -->
+      </div>
+    </section>
+
+    <!-- Tab 4: Wallet & Topup -->
+    <section id="tab-wallet" class="tab-pane">
+      <div class="grid" style="margin-bottom: 2rem;">
+        <div class="card">
+          <span style="color: var(--text-muted); font-size: 0.85rem;">Saldo Atual</span>
+          <h2 id="wallet-current-bal" style="font-size: 2.2rem; color: var(--accent-green); margin: 0.5rem 0;">R$ 0,00</h2>
+          <p style="color: var(--text-muted); font-size: 0.85rem;">O saldo pode ser utilizado dentro do jogo no menu <code>/loja</code>.</p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Recarregar Saldo via PIX</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">Selecione o valor para recarga instantânea:</p>
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <button class="btn btn-primary btn-sm" onclick="App.createPixOrder(1000)">+ R$ 10,00</button>
+            <button class="btn btn-primary btn-sm" onclick="App.createPixOrder(2500)">+ R$ 25,00</button>
+            <button class="btn btn-primary btn-sm" onclick="App.createPixOrder(5000)">+ R$ 50,00</button>
+            <button class="btn btn-primary btn-sm" onclick="App.createPixOrder(10000)">+ R$ 100,00</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal/Área PIX gerado -->
+      <div id="pix-modal-content" class="card" style="display: none; border: 1px solid var(--accent-green); margin-bottom: 2rem;">
+        <h3 class="card-title" style="color: var(--accent-green);">Pedido PIX Gerado com Sucesso!</h3>
+        <p style="margin: 0.5rem 0;">ID do Pedido: <code id="pix-order-id"></code></p>
+        <p>Valor: <strong id="pix-order-amount"></strong></p>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">
+          Após o pagamento, o webhook credita automaticamente seu saldo na carteira.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title" style="margin-bottom: 1rem;">Extrato de Movimentações</h3>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Valor</th>
+                <th>Moeda</th>
+                <th>Data / Hora</th>
+              </tr>
+            </thead>
+            <tbody id="wallet-tx-tbody">
+              <tr><td colspan="4" style="text-align:center; color: var(--text-muted);">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 5: Admin Panel -->
+    <section id="tab-admin" class="tab-pane">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2>Painel de Controle — Administração</h2>
+        <button class="btn btn-primary btn-sm" onclick="App.openModal('modal-adjust-balance')">
+          ⚙️ Ajuste Manual de Saldo
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 2rem;">
+        <div class="card">
+          <span style="color: var(--text-muted); font-size: 0.8rem;">Total Jogadores</span>
+          <h3 id="admin-stat-players" style="font-size: 1.75rem; margin-top: 0.25rem;">0</h3>
+        </div>
+        <div class="card">
+          <span style="color: var(--text-muted); font-size: 0.8rem;">Itens no Catálogo</span>
+          <h3 id="admin-stat-items" style="font-size: 1.75rem; margin-top: 0.25rem;">0</h3>
+        </div>
+        <div class="card">
+          <span style="color: var(--text-muted); font-size: 0.8rem;">Pedidos Realizados</span>
+          <h3 id="admin-stat-orders" style="font-size: 1.75rem; margin-top: 0.25rem;">0</h3>
+        </div>
+        <div class="card">
+          <span style="color: var(--text-muted); font-size: 0.8rem;">Faturamento Total</span>
+          <h3 id="admin-stat-revenue" style="font-size: 1.75rem; color: var(--accent-green); margin-top: 0.25rem;">R$ 0,00</h3>
+        </div>
+      </div>
+
+      <!-- Logs de Auditoria -->
+      <div class="card">
+        <h3 class="card-title" style="margin-bottom: 1rem;">Trilha de Auditoria (Audit Logs)</h3>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Ação</th>
+                <th>Alvo</th>
+                <th>ID do Alvo</th>
+                <th>Data / Hora</th>
+              </tr>
+            </thead>
+            <tbody id="admin-audit-tbody">
+              <tr><td colspan="4" style="text-align:center; color: var(--text-muted);">Carregando logs...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modais -->
+  <!-- Modal Login -->
+  <div id="modal-login" class="modal-overlay">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 1.25rem;">Entrar na Plataforma</h3>
+      <form onsubmit="event.preventDefault(); App.login(document.getElementById('login-email').value, document.getElementById('login-pass').value);">
+        <div class="form-group">
+          <label>Identificador / Email</label>
+          <input type="text" id="login-email" class="form-control" required placeholder="admin@vieirastrike.com">
+        </div>
+        <div class="form-group">
+          <label>Senha</label>
+          <input type="password" id="login-pass" class="form-control" required placeholder="••••••••">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="App.closeModal('modal-login')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Entrar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Ajuste de Saldo -->
+  <div id="modal-adjust-balance" class="modal-overlay">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 0.5rem;">Ajuste Manual de Saldo</h3>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">
+        Conforme a Seção 7 da auditoria, todo ajuste manual exige justificativa obrigatória e gera registro imutável em auditoria.
+      </p>
+      <form onsubmit="App.adjustBalanceSubmit(event)">
+        <div class="form-group">
+          <label>UUID do Jogador</label>
+          <input type="text" id="adj-player-id" class="form-control" required placeholder="Ex.: 123e4567-e89b-12d3-a456-426614174000">
+        </div>
+        <div class="form-group">
+          <label>Valor em R$ (positivo para crédito, negativo para débito)</label>
+          <input type="number" step="0.01" id="adj-amount" class="form-control" required placeholder="Ex.: 15.00 ou -10.00">
+        </div>
+        <div class="form-group">
+          <label>Motivo da Operação (Mínimo 5 caracteres)</label>
+          <input type="text" id="adj-reason" class="form-control" minlength="5" required placeholder="Ex.: Bonificação evento de inauguração">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="App.closeModal('modal-adjust-balance')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Confirmar Ajuste</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Footer -->
+  <footer>
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 0.75rem; align-items: center;">
+      <div>Vieira-STRIKE &copy; 2026. Todos os direitos reservados. Servidor e plataforma para Counter-Strike 1.6.</div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem;">
+        <span>API Endpoint:</span>
+        <input type="text" id="setting-api-url" class="form-control" style="width: 250px; padding: 0.2rem 0.5rem; font-size: 0.75rem;">
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+# .gitignore — cs16-platform / Vieira-STRIKE
+# Conforme Seção 6 e 10 da auditoria técnica
+
+# Segredos e Variáveis de Ambiente (NUNCA comitar)
+.env
+.env.local
+*.env
+/etc/cs16/env
+
+# Certificados SSL e chaves privadas
+*.pem
+*.key
+*.crt
+infrastructure/nginx/ssl/
+
+# Backups e Dumps SQL
+*.sql.gz
+*.dump
+infrastructure/backups/*
+!infrastructure/backups/.gitkeep
+
+# Python / Backend
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+
+# HLDS e Binários do Jogo (instalados via SteamCMD / scripts)
+game-server/hlds/
+*.so
+*.dll
+*.exe
+
+# Plugins compilados do AMX Mod X (o repositório mantém apenas os .sma)
+game-server/cstrike/addons/amxmodx/plugins/*.amxx
+
+# FastDL e Assets binários pesados (servidos via Nginx)
+fastdl-public/cstrike/maps/*.bsp
+fastdl-public/cstrike/maps/*.bz2
+fastdl-public/cstrike/models/*.mdl
+fastdl-public/cstrike/sound/*.wav
+fastdl-public/cstrike/sound/*.mp3
+
+# Logs
+*.log
+infrastructure/nginx_logs/
+nginx_logs/
+
+# IDE e Sistema Operacional
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
