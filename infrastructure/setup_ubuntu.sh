@@ -27,14 +27,14 @@ REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 log "Iniciando configuração do servidor Vieira-STRIKE..."
 
 # ── 1. Dependências do Sistema e 32-bit ────────────────────────────────────────
-log "Instalando dependências de sistema, Docker e bibliotecas 32-bit para o HLDS..."
+log "Instalando dependências de sistema e bibliotecas 32-bit para o HLDS..."
 dpkg --add-architecture i386
 apt-get update
 apt-get install -y --no-install-recommends \
     curl unzip git lib32gcc-s1 lib32stdc++6 libpq5 \
-    ca-certificates gnupg lsb-release \
-    docker.io docker-compose-v2
+    ca-certificates gnupg lsb-release
 
+# Garante que o serviço do Docker esteja ativo
 systemctl enable --now docker
 info "Dependências instaladas e Docker ativo."
 
@@ -82,15 +82,22 @@ cd "$TARGET_DIR/infrastructure"
 docker compose up -d
 
 log "Aguardando PostgreSQL inicializar..."
-sleep 6
+for i in {1..30}; do
+    if docker compose exec -T postgres pg_isready -U cs16_admin -d cs16 >/dev/null 2>&1; then
+        info "PostgreSQL pronto para conexões."
+        break
+    fi
+    sleep 2
+done
 
 # Aplicar schema inicial
 log "Aplicando migração inicial 001_initial_schema.sql..."
-docker exec -i "$(docker compose ps -q postgres)" psql -U cs16_admin -d cs16 < "$TARGET_DIR/backend/migrations/001_initial_schema.sql" || true
+docker compose exec -T postgres psql -U cs16_admin -d cs16 < "$TARGET_DIR/backend/migrations/001_initial_schema.sql" || true
 
 # Rodar seed inicial
 log "Executando seed de catálogo e usuário Owner..."
-docker compose exec backend python -m scripts.seed || warn "Seed já aplicado ou container inicializando."
+sleep 2
+docker compose exec -T backend python -m scripts.seed || warn "Seed já aplicado ou container inicializando."
 
 # ── 5. Instalação do HLDS via SteamCMD ─────────────────────────────────────────
 HLDS_DIR="/home/cs16/cs16-platform/game-server/hlds"
