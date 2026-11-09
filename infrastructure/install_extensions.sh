@@ -84,6 +84,7 @@ log "ReAPI instalado."
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 log "Copiando configs e plugins do repositório..."
 cp -r "$REPO_DIR/game-server/cstrike/." "$CS_DIR/"
+chmod +x "$HLDS_DIR/hlds_run" "$HLDS_DIR/hlds_linux" 2>/dev/null || true
 log "Configs copiados."
 
 log "Todas as extensões instaladas. Próximo passo: bash install_plugins.sh"

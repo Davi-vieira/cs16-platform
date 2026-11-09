@@ -18,6 +18,7 @@ if [ ! -f "$COMPILER" ]; then
     log "Instale o AMX Mod X antes de rodar este script."
     exit 1
 fi
+chmod +x "$COMPILER" 2>/dev/null || true
 
 PLUGINS=(
     cs16_perfil
