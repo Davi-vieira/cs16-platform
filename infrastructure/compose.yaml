@@ -8,18 +8,20 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB:       ${POSTGRES_DB}
-      POSTGRES_USER:     ${POSTGRES_USER}
+      POSTGRES_DB:       ${POSTGRES_DB:-cs16}
+      POSTGRES_USER:     ${POSTGRES_USER:-cs16_admin}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backups:/backups
+    ports:
+      - "127.0.0.1:5432:5432"
     networks:
       - internal
-    # Nunca expor porta para fora — apenas rede interna
+    # Acesso via 127.0.0.1 apenas para os plugins do jogo no host
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cs16_admin} -d ${POSTGRES_DB:-cs16}"]
+      interval: 5s
       timeout: 5s
       retries: 5
 
@@ -32,15 +34,17 @@ services:
       DATABASE_URL:      ${DATABASE_URL_BACKEND}
       SECRET_KEY:        ${SECRET_KEY}
       PAYMENT_WEBHOOK_SECRET: ${PAYMENT_WEBHOOK_SECRET}
+    ports:
+      - "8000:8000"
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - internal
-    # Não expor porta diretamente — Nginx faz proxy
+      - external
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 15s
+      interval: 10s
       timeout: 5s
       retries: 3
 
@@ -52,7 +56,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/sites:/etc/nginx/sites-enabled:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
       - ../fastdl-public:/var/www/fastdl:ro
       - nginx_logs:/var/log/nginx
     depends_on:

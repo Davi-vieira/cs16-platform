@@ -57,7 +57,17 @@ if [ "$REPO_DIR" != "$TARGET_DIR" ]; then
     chown -R cs16:cs16 "$TARGET_DIR"
 fi
 
-# ── 3. Preparação do .env ─────────────────────────────────────────────────────
+# ── 3. Preparação do .env e Certificados SSL ─────────────────────────────────
+mkdir -p "$TARGET_DIR/infrastructure/nginx/ssl"
+if [ ! -f "$TARGET_DIR/infrastructure/nginx/ssl/cert.pem" ]; then
+    log "Gerando certificados SSL autoassinados para o Nginx..."
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+        -keyout "$TARGET_DIR/infrastructure/nginx/ssl/key.pem" \
+        -out "$TARGET_DIR/infrastructure/nginx/ssl/cert.pem" \
+        -subj "/CN=vieira-strike" 2>/dev/null || true
+    chown -R cs16:cs16 "$TARGET_DIR/infrastructure/nginx/ssl"
+fi
+
 if [ ! -f "$TARGET_DIR/.env" ]; then
     log "Criando arquivo .env a partir de .env.example com segredos aleatórios..."
     cp "$TARGET_DIR/.env.example" "$TARGET_DIR/.env"
@@ -76,9 +86,17 @@ if [ ! -f "$TARGET_DIR/.env" ]; then
     info ".env configurado com credenciais seguras."
 fi
 
+# Garante cópia do .env dentro de infrastructure para o Docker Compose
+cp "$TARGET_DIR/.env" "$TARGET_DIR/infrastructure/.env"
+chown cs16:cs16 "$TARGET_DIR/infrastructure/.env"
+chmod 600 "$TARGET_DIR/infrastructure/.env"
+
 # ── 4. Subida dos Containers (PostgreSQL, Backend FastAPI, Nginx FastDL) ──────
 log "Subindo PostgreSQL, API Backend e Nginx via Docker Compose..."
 cd "$TARGET_DIR/infrastructure"
+
+# Limpa volumes e containers não saudáveis de tentativas anteriores
+docker compose down -v 2>/dev/null || true
 docker compose up -d
 
 log "Aguardando PostgreSQL inicializar..."
@@ -90,9 +108,40 @@ for i in {1..30}; do
     sleep 2
 done
 
+# Extrai senha do postgres do .env
+PG_PASS_VAL=$(grep '^POSTGRES_PASSWORD=' "$TARGET_DIR/.env" | cut -d '=' -f2)
+
+# Cria usuário restrito do jogo no PostgreSQL e atualiza sql.cfg
+log "Configurando permissões do usuário do jogo (cs16_game)..."
+docker compose exec -T postgres psql -U cs16_admin -d cs16 -c "
+    DO \$\$
+    BEGIN
+        IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'cs16_game') THEN
+            CREATE USER cs16_game WITH PASSWORD '$PG_PASS_VAL';
+        ELSE
+            ALTER USER cs16_game WITH PASSWORD '$PG_PASS_VAL';
+        END IF;
+    END
+    \$\$;
+" || true
+
+# Configura sql.cfg com a senha gerada
+SQL_CFG="$TARGET_DIR/game-server/cstrike/addons/amxmodx/configs/sql.cfg"
+if [ -f "$SQL_CFG" ]; then
+    sed -i "s/pass = .*/pass = \"$PG_PASS_VAL\"/g" "$SQL_CFG"
+fi
+
 # Aplicar schema inicial
 log "Aplicando migração inicial 001_initial_schema.sql..."
 docker compose exec -T postgres psql -U cs16_admin -d cs16 < "$TARGET_DIR/backend/migrations/001_initial_schema.sql" || true
+
+# Concede permissões nas tabelas criadas ao usuário cs16_game
+docker compose exec -T postgres psql -U cs16_admin -d cs16 -c "
+    GRANT CONNECT ON DATABASE cs16 TO cs16_game;
+    GRANT USAGE ON SCHEMA public TO cs16_game;
+    GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO cs16_game;
+    GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO cs16_game;
+" || true
 
 # Rodar seed inicial
 log "Executando seed de catálogo e usuário Owner..."
